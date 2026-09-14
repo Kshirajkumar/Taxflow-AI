@@ -55,19 +55,6 @@ const FILES_EXAMPLE = [
   { name: "GSTR2A_Aug2026_AutoDownload.xlsx", type: "xls" }
 ];
 
-const PAIN_POINTS = [
-  { num: "01", title: "Chasing clients for monthly bills & bank statements", desc: "30–40% of practice time spent calling, WhatsApp-ing, and emailing for invoices before deadline.", fix: "Auto-nudge over WhatsApp Business API with <b>vault link</b>.", page: "reminders", btn: "Open Reminders" },
-  { num: "02", title: "Manual data entry from messy PDF/JPG bills", desc: "Typing GSTINs, dates, line items, and tax amounts from 500+ scanned bills every month.", fix: "<b>Vision extract engine</b> turns bills into structured JSON instantly.", page: "vision", btn: "Try Vision Extract" },
-  { num: "03", title: "Folder chaos across WhatsApp, email & desktop", desc: "Client docs scattered everywhere; hard to verify if a file was filed or missed.", fix: "<b>Auto-provisioned vault tree</b> per client, year, and month.", page: "vault", btn: "View Vault Tree" },
-  { num: "04", title: "Bank vs. books reconciliation headaches", desc: "Matching GSTR-2B vs. 3B and bank statement vs. Tally vouchers takes days.", fix: "<b>Auto-recon engine</b> flags mismatches and suggests line pairings.", page: "recon", btn: "Open Recon Queue" },
-  { num: "05", title: "Last-minute deadline panic before 20th", desc: "Filings pile up in the last 48 hours, causing rush errors and missed ITC.", fix: "<b>Urgency-ranked dashboard</b> shows exactly who needs attention first.", page: "dashboard", btn: "View Dashboard" },
-  { num: "06", title: "Multi-client status tracking in spreadsheets", desc: "Excel trackers for filing status quickly go out of sync with actual work done.", fix: "<b>Real-time status pills</b> linked directly to vault documents.", page: "clients", btn: "Open Client List" },
-  { num: "07", title: "Drafting ITR/GSTR returns manually", desc: "Copy-pasting summary figures into offline tools with high risk of keying error.", fix: "<b>One-click return auto-fill</b> straight from confirmed vault data.", page: "filings", btn: "Open Return Studio" },
-  { num: "08", title: "No audit trail for extracted numbers", desc: "Staff extracts a number; 6 months later during audit, no one knows which PDF it came from.", fix: "Every field links back to <b>source file & confidence score</b>.", page: "vision", btn: "Inspect Extraction" },
-  { num: "09", title: "Lack of staff workload visibility", desc: "Unclear who on the team is handling which client filing or document queue.", fix: "<b>Activity feed</b> logs every document extracted and reminder sent.", page: "dashboard", btn: "View Activity Feed" },
-  { num: "10", title: "Answering repetitive client 'what's pending' queries", desc: "Clients call asking what documents they owe, interrupting core tax work.", fix: "<b>Practice AI companion</b> answers instant queries on filing status.", page: "dashboard", btn: "Ask Assistant" }
-];
-
 const SETTINGS_DEFAULT = {
   theme: "light",
   firmName: "Shreya & Co., Chartered Accountants",
