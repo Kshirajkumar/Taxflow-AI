@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taxflow AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+(function(){
+  try{
+    var t=localStorage.getItem("taxflow-theme")||"light";
+    document.documentElement.setAttribute("data-theme", t);
+  }catch(e){ document.documentElement.setAttribute("data-theme","light"); }
+})();
+</script>
+<style>
+:root{
+  --ink:#0F1B2E;
+  --ink-soft:#182C48;
+  --ink-line:#28405f;
+  --paper:#F3F1EC;
+  --surface:#FFFFFF;
+  --line:#E3E0D6;
+  --line-soft:#ECE9DF;
+  --brass:#A87C2E;
+  --brass-deep:#7E5A1E;
+  --brass-tint:#F4E9D4;
+  --ok:#2F7D5D;
+  --ok-tint:#E4F2EB;
+  --warn:#B5540C;
+  --warn-tint:#FBEBDD;
+  --bad:#B23A3A;
+  --bad-tint:#F9E7E5;
+  --text:#1B2231;
+  --text-soft:#5B6472;
+  --text-faint:#8B93A0;
+  --hover:#FBFAF7;
+  --muted:#FBFAF6;
+  --card-grad-top:#FFFFFF;
+  --card-grad-bot:#FCFBF8;
+  --bot-msg:#F1EFE6;
+  --user-msg:#0F1B2E;
+  --user-msg-text:#EFE9D8;
+  --wa-preview:#DCF5E4;
+  --wa-preview-text:#1B2231;
+  --neutral-badge:#EEEEE9;
+  --avatar-bg:#EFE7D2;
+  --scroll-thumb:#D9D5C7;
+  --focus-ring:#D8C69B;
+  --ghost-hover:rgba(15,27,46,.05);
+  --radius:10px;
+  --radius-sm:6px;
+  --shadow-1:0 1px 2px rgba(15,27,46,.06);
+  --shadow-2:0 10px 30px rgba(15,27,46,.12);
+  --font-head:'Fraunces', serif;
+  --font-body:'Inter', sans-serif;
+  --font-mono:'IBM Plex Mono', monospace;
+}
+html[data-theme="dark"]{
+  --ink:#070D16;
+  --ink-soft:#101A2A;
+  --ink-line:#243247;
+  --paper:#0E1624;
+  --surface:#162033;
+  --line:#2A3A52;
+  --line-soft:#1E2B3F;
+  --brass:#C49A45;
+  --brass-deep:#E0B85A;
+  --brass-tint:#2C2414;
+  --ok:#4CA882;
+  --ok-tint:#143528;
+  --warn:#D4843A;
+  --warn-tint:#3A2412;
+  --bad:#D46565;
+  --bad-tint:#3A1C1C;
+  --text:#E8E4D9;
+  --text-soft:#A0A9B8;
+  --text-faint:#738092;
+  --hover:#1A2638;
+  --muted:#121C2C;
+  --card-grad-top:#1A2638;
+  --card-grad-bot:#152032;
+  --bot-msg:#1A2638;
+  --user-msg:#C49A45;
+  --user-msg-text:#1B140A;
+  --wa-preview:#143528;
+  --wa-preview-text:#D7E8DC;
+  --neutral-badge:#243247;
+  --avatar-bg:#2C2414;
+  --scroll-thumb:#2A3A52;
+  --focus-ring:#8A7040;
+  --ghost-hover:rgba(232,228,217,.06);
+  --shadow-1:0 1px 2px rgba(0,0,0,.28);
+  --shadow-2:0 12px 32px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;}
+html,body{height:100%;margin:0;overflow:hidden;}
+body{
+  font-family:var(--font-body);
+  background:var(--ink);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ===== Window chrome — full viewport, no side gaps ===== */
+.app-window{
+  width:100vw;
+  height:100vh;
+  background:var(--paper);
+  border-radius:0;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.titlebar{
+  height:44px;
+  flex:none;
+  background:var(--ink);
+  color:#D9DEE8;
+  display:flex;
+  align-items:center;
+  padding:0 12px 0 16px;
+  gap:14px;
+  -webkit-app-region:drag;
+  border-bottom:1px solid var(--ink-line);
+}
+.titlebar .dots{display:flex;gap:8px;}
+.titlebar .dot{width:12px;height:12px;border-radius:50%;background:#3A4C6B;}
+.titlebar .dot.close{background:#C25450;}
+.titlebar .dot.min{background:#D8A94E;}
+.titlebar .dot.max{background:#4E9E77;}
+.titlebar .brand{
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--font-head);
+  font-size:15px;
+  letter-spacing:.2px;
+  color:#F2EFE6;
+  margin-left:4px;
+}
+.titlebar .brand .mark{
+  width:20px;height:20px;border-radius:5px;
+  background:linear-gradient(155deg,var(--brass),var(--brass-deep));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);
+  font-size:12px;font-weight:600;color:#1B140A;
+}
+.titlebar .searchbar{
+  flex:1;
+  display:flex;justify-content:center;
+}
+.titlebar .searchbar .box{
+  width:340px;
+  max-width:60%;
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:7px;
+  padding:6px 10px;
+  color:#9AA6BB;
+  font-size:12.5px;
+}
+.titlebar .searchbar .box svg{flex:none;opacity:.8;}
+.titlebar .right{
+  display:flex;align-items:center;gap:14px;
+  font-size:12.5px;color:#AEB7C7;
+}
+.titlebar .user{
+  display:flex;align-items:center;gap:8px;
+  padding-left:12px;border-left:1px solid var(--ink-line);
+}
+.titlebar .avatar{
+  width:24px;height:24px;border-radius:50%;
+  background:var(--brass-tint);color:var(--brass-deep);
+  font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-body);
+}
+
+/* ===== Layout ===== */
+.layout{
+  flex:1;
+  display:flex;
+  min-height:0;
+}
+
+/* ---- Sidebar ---- */
+.sidebar{
+  width:224px;
+  flex:none;
+  background:var(--ink);
+  color:#C7CEDB;
+  display:flex;
+  flex-direction:column;
+  padding:16px 10px;
+  border-right:1px solid var(--ink-line);
+}
+.sidebar .section-label{
+  font-size:10.5px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:#5F6E8B;
+  padding:14px 10px 6px;
+}
+.sidebar .section-label:first-child{padding-top:2px;}
+.navitem{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 10px;
+  border-radius:7px;
+  font-size:13.3px;
+  color:#B9C2D4;
+  cursor:pointer;
+  border:none;background:none;width:100%;text-align:left;
+  font-family:var(--font-body);
+  position:relative;
+}
+.navitem svg{flex:none;opacity:.85;}
+.navitem .badge{
+  margin-left:auto;
+  font-size:10.5px;
+  background:rgba(216,169,78,.18);
+  color:#E4C87F;
+  padding:1.5px 6px;
+  border-radius:20px;
+  font-weight:600;
+}
+.navitem:hover{background:rgba(255,255,255,.05);color:#EDEFF4;}
+.navitem.active{
+  background:linear-gradient(90deg, rgba(216,169,78,.16), rgba(216,169,78,.05));
+  color:#F4EAD2;
+}
+.navitem.active::before{
+  content:"";position:absolute;left:-10px;top:6px;bottom:6px;width:3px;
+  background:var(--brass);border-radius:0 3px 3px 0;
+}
+.sidebar-foot{
+  margin-top:auto;
+  padding:12px 10px 4px;
+  border-top:1px solid var(--ink-line);
+}
+.storage-meter{
+  font-size:11px;color:#8892A6;margin-bottom:6px;
+  display:flex;justify-content:space-between;
+}
+.storage-bar{height:5px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden;}
+.storage-bar > div{height:100%;width:34%;background:linear-gradient(90deg,var(--brass),#E4C87F);}
+
+/* ---- Main ---- */
+.main{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  background:var(--paper);
+  overflow:hidden;
+}
+.main-scroll{
+  flex:1;
+  overflow-y:auto;
+  padding:26px 32px 40px;
+}
+.page{display:none;animation:fadein .25s ease;}
+.page.active{display:block;}
+@keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+.page-head{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  margin-bottom:22px;gap:20px;flex-wrap:wrap;
+}
+.page-head h1{
+  font-family:var(--font-head);
+  font-size:26px;font-weight:500;
+  margin:0 0 4px;color:var(--text);
+}
+.page-head p{margin:0;color:var(--text-soft);font-size:13.5px;max-width:520px;}
+.page-head .actions{display:flex;gap:10px;}
+
+.btn{
+  font-family:var(--font-body);
+  font-size:13px;font-weight:600;
+  padding:9px 16px;border-radius:7px;
+  border:1px solid var(--line);
+  background:var(--surface);color:var(--text);
+  cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.btn:hover{box-shadow:var(--shadow-1);}
+.btn:active{transform:scale(.98);}
+.btn-brass{
+  background:linear-gradient(155deg,var(--brass),var(--brass-deep));
+  border-color:var(--brass-deep);color:#FBF3E1;
+}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--text-soft);}
+.btn-ghost:hover{background:var(--ghost-hover);}
+.btn-sm{padding:6px 11px;font-size:12px;}
+.btn[disabled]{opacity:.45;cursor:not-allowed;}
+
+/* Cards / stat grid */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.stat-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 18px;box-shadow:var(--shadow-1);
+}
+.stat-card .lbl{font-size:11.5px;color:var(--text-soft);display:flex;justify-content:space-between;align-items:center;}
+.stat-card .val{font-family:var(--font-head);font-size:28px;margin-top:6px;color:var(--text);}
+.stat-card .sub{font-size:11.5px;margin-top:4px;color:var(--text-faint);}
+.stat-card .sub.up{color:var(--ok);}
+.stat-card .sub.warn{color:var(--warn);}
+
+.panel{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow-1);
+}
+.panel + .panel{margin-top:16px;}
+.panel-head{
+  padding:15px 18px;border-bottom:1px solid var(--line-soft);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.panel-head h3{margin:0;font-size:14.5px;font-weight:600;color:var(--text);font-family:var(--font-body);}
+.panel-head .hint{font-size:11.5px;color:var(--text-faint);}
+.panel-body{padding:16px 18px;}
+
+.two-col{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;align-items:start;}
+
+/* Deadline strip */
+.deadline-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:2px;}
+.deadline-card{
+  flex:none;width:160px;border:1px solid var(--line);border-radius:9px;padding:12px;
+  background:linear-gradient(180deg,var(--card-grad-top), var(--card-grad-bot));
+}
+.deadline-card .day{font-family:var(--font-head);font-size:22px;color:var(--text);}
+.deadline-card .mon{font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.5px;margin-left:4px;}
+.deadline-card .title{font-size:12.5px;font-weight:600;margin-top:6px;color:var(--text);}
+.deadline-card .cnt{font-size:11px;color:var(--text-soft);margin-top:2px;}
+.deadline-card.urgent{border-color:var(--warn);background:var(--warn-tint);}
+.deadline-card.urgent .day{color:var(--warn);}
+
+/* Activity feed */
+.feed{list-style:none;margin:0;padding:0;}
+.feed li{
+  display:flex;gap:11px;padding:10px 0;border-bottom:1px solid var(--line-soft);
+}
+.feed li:last-child{border-bottom:none;padding-bottom:0;}
+.feed .dot{width:7px;height:7px;border-radius:50%;background:var(--brass);margin-top:6px;flex:none;}
+.feed .t{font-size:12.5px;color:var(--text);}
+.feed .m{font-size:11px;color:var(--text-faint);margin-top:2px;}
+
+/* Table */
+table{width:100%;border-collapse:collapse;font-size:12.8px;}
+th{
+  text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.4px;
+  color:var(--text-faint);font-weight:600;padding:0 10px 8px;border-bottom:1px solid var(--line);
+}
+td{padding:11px 10px;border-bottom:1px solid var(--line-soft);color:var(--text);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr.tr-hover:hover{background:var(--hover);}
+.cell-strong{font-weight:600;color:var(--text);}
+.cell-sub{color:var(--text-faint);font-size:11px;margin-top:2px;}
+
+.badge{
+  display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;
+  padding:3px 9px;border-radius:20px;
+}
+.badge.ok{background:var(--ok-tint);color:var(--ok);}
+.badge.warn{background:var(--warn-tint);color:var(--warn);}
+.badge.bad{background:var(--bad-tint);color:var(--bad);}
+.badge.neutral{background:var(--neutral-badge);color:var(--text-soft);}
+.badge.brass{background:var(--brass-tint);color:var(--brass-deep);}
+.badge svg{width:11px;height:11px;}
+
+.avatar-sm{
+  width:30px;height:30px;border-radius:50%;flex:none;
+  background:var(--avatar-bg);color:var(--brass-deep);font-weight:700;font-size:12px;
+  display:flex;align-items:center;justify-content:center;
+}
+.row-flex{display:flex;align-items:center;gap:10px;}
+
+select, input[type=text], input[type=search], input[type=email], input[type=tel]{
+  font-family:var(--font-body);font-size:12.8px;
+  border:1px solid var(--line);border-radius:7px;
+  padding:8px 11px;background:var(--surface);color:var(--text);
+}
+select:focus, input:focus{outline:2px solid var(--focus-ring); outline-offset:1px;}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:13px;}
+.field label{font-size:11.5px;font-weight:600;color:var(--text-soft);}
+
+/* ===== Pain points ===== */
+.pp-list{display:flex;flex-direction:column;gap:10px;}
+.pp-item{
+  display:grid;grid-template-columns:44px 1.1fr 1.3fr 110px;gap:16px;align-items:center;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:15px 18px;
+}
+.pp-num{
+  font-family:var(--font-head);font-size:20px;color:var(--brass);
+  border-right:1px solid var(--line-soft);
+}
+.pp-item h4{margin:0 0 4px;font-size:13.5px;color:var(--ink);}
+.pp-item .desc{font-size:12px;color:var(--text-soft);line-height:1.45;}
+.pp-item .fix{font-size:12px;color:var(--text);line-height:1.45;}
+.pp-item .fix b{color:var(--ok);font-weight:600;}
+.pp-item .goto{justify-self:end;}
+
+/* ===== Vault / folder tree ===== */
+.vault-wrap{display:grid;grid-template-columns:290px 1fr;gap:16px;align-items:start;}
+.tree{font-size:13px;}
+.tree ul{list-style:none;margin:0;padding-left:18px;border-left:1px dashed var(--line);}
+.tree > ul{padding-left:0;border-left:none;}
+.tree li{margin:1px 0;}
+.tree .node{
+  display:flex;align-items:center;gap:6px;padding:5px 7px;border-radius:6px;cursor:pointer;color:var(--text);
+}
+.tree .node:hover{background:#F3F0E6;}
+.tree .node.selected{background:var(--brass-tint);color:var(--brass-deep);font-weight:600;}
+.tree .node svg{flex:none;}
+.tree .chev{transition:transform .15s ease;opacity:.6;}
+.tree li.open > .node .chev{transform:rotate(90deg);}
+.tree li.open > ul{display:block;}
+.tree li:not(.open) > ul{display:none;}
+.tree .count{margin-left:auto;font-size:10.5px;color:var(--text-faint);}
+
+.filebar{
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;
+}
+.crumb{font-size:12.5px;color:var(--text-soft);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.crumb b{color:var(--ink);}
+.file-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+.file-card{
+  border:1px solid var(--line);border-radius:9px;padding:12px;background:#fff;
+  display:flex;flex-direction:column;gap:8px;
+}
+.file-card .ico{
+  width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  background:var(--brass-tint);color:var(--brass-deep);
+}
+.file-card .ico.pdf{background:var(--bad-tint);color:var(--bad);}
+.file-card .ico.xls{background:var(--ok-tint);color:var(--ok);}
+.file-card .name{font-size:12px;font-weight:600;color:var(--text);line-height:1.3;}
+.file-card .meta{font-size:10.5px;color:var(--text-faint);}
+
+/* ===== Vision Extract ===== */
+.vx-grid{display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start;}
+.dropzone{
+  border:1.5px dashed var(--line);border-radius:10px;padding:26px 16px;text-align:center;
+  color:var(--text-soft);font-size:12.5px;background:#FBFAF6;cursor:pointer;
+}
+.dropzone svg{margin-bottom:8px;color:var(--brass);}
+.dropzone b{color:var(--text);}
+.file-chip{
+  display:flex;align-items:center;gap:9px;padding:9px 11px;border:1px solid var(--line);
+  border-radius:8px;margin-top:10px;font-size:12px;background:#fff;
+}
+.file-chip .ico{width:26px;height:26px;border-radius:6px;background:var(--bad-tint);color:var(--bad);display:flex;align-items:center;justify-content:center;flex:none;}
+.progress-steps{display:flex;flex-direction:column;gap:9px;margin-top:14px;}
+.pstep{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text-faint);}
+.pstep .dotwrap{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;flex:none;}
+.pstep.done .dotwrap{background:var(--ok);border-color:var(--ok);color:#fff;}
+.pstep.active .dotwrap{border-color:var(--brass);}
+.pstep.active{color:var(--text);font-weight:600;}
+.pstep.done{color:var(--text);}
+.spinner{width:9px;height:9px;border-radius:50%;border:2px solid var(--brass-tint);border-top-color:var(--brass);animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.extract-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:340px;color:var(--text-faint);text-align:center;gap:10px;
+}
+.extract-empty svg{color:var(--line);}
+.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;}
+.kv{padding:9px 0;border-bottom:1px solid var(--line-soft);}
+.kv .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--text-faint);margin-bottom:3px;}
+.kv .v{font-size:13.5px;color:var(--ink);font-weight:600;}
+.confidence{font-size:10.5px;font-weight:700;color:var(--ok);}
+pre.json{
+  background:#0F1B2E;color:#D7E1F0;padding:14px;border-radius:9px;font-family:var(--font-mono);
+  font-size:11.3px;line-height:1.6;overflow:auto;max-height:260px;
+}
+pre.json .k{color:#E4C87F;}
+pre.json .s{color:#9BD6B0;}
+
+/* ===== Reconciliation ===== */
+.recon-summary{display:flex;gap:12px;margin-bottom:16px;}
+.recon-chip{
+  flex:1;border:1px solid var(--line);border-radius:10px;padding:13px 16px;background:#fff;
+}
+.recon-chip .n{font-family:var(--font-head);font-size:22px;color:var(--ink);}
+.recon-chip .l{font-size:11.5px;color:var(--text-soft);}
+.recon-chip.matched{border-color:#BFE0CD;background:var(--ok-tint);}
+.recon-chip.matched .n{color:var(--ok);}
+.recon-chip.partial{border-color:#EFD7A9;background:var(--warn-tint);}
+.recon-chip.partial .n{color:var(--warn);}
+.recon-chip.unmatched{border-color:#EAC0BE;background:var(--bad-tint);}
+.recon-chip.unmatched .n{color:var(--bad);}
+
+/* ===== Chat panel ===== */
+.chat{
+  width:318px;flex:none;background:var(--surface);border-left:1px solid var(--line);
+  display:flex;flex-direction:column;min-height:0;
+}
+.chat-head{
+  padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;
+}
+.chat-head .ico{
+  width:30px;height:30px;border-radius:8px;background:linear-gradient(155deg,var(--brass),var(--brass-deep));
+  display:flex;align-items:center;justify-content:center;color:#FBF3E1;flex:none;
+}
+.chat-head .t{font-size:13px;font-weight:700;color:var(--ink);}
+.chat-head .s{font-size:11px;color:var(--ok);display:flex;align-items:center;gap:5px;}
+.chat-head .s::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ok);}
+.chat-body{flex:1;overflow-y:auto;padding:14px 14px 6px;display:flex;flex-direction:column;gap:12px;}
+.msg{max-width:88%;font-size:12.6px;line-height:1.5;padding:9px 12px;border-radius:11px;}
+.msg.bot{background:#F1EFE6;color:var(--text);align-self:flex-start;border-bottom-left-radius:3px;}
+.msg.user{background:var(--ink);color:#EFE9D8;align-self:flex-end;border-bottom-right-radius:3px;}
+.msg.typing{display:flex;gap:4px;align-items:center;padding:11px 14px;}
+.msg.typing span{width:5px;height:5px;border-radius:50%;background:var(--text-faint);animation:blink 1.1s infinite ease-in-out;}
+.msg.typing span:nth-child(2){animation-delay:.15s;}
+.msg.typing span:nth-child(3){animation-delay:.3s;}
+@keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:4px 14px 12px;}
+.chip{
+  font-size:11px;border:1px solid var(--line);background:#fff;color:var(--text-soft);
+  padding:6px 10px;border-radius:20px;cursor:pointer;
+}
+.chip:hover{border-color:var(--brass);color:var(--brass-deep);}
+.chat-input{
+  border-top:1px solid var(--line);padding:12px 14px;display:flex;gap:8px;
+}
+.chat-input input{
+  flex:1;border:1px solid var(--line);border-radius:20px;padding:9px 14px;font-size:12.6px;
+}
+.chat-input button{
+  width:36px;height:36px;border-radius:50%;border:none;background:var(--ink);color:#F1EAD3;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;
+}
+.chat-input button:hover{background:var(--ink-soft);}
+
+/* status bar */
+.statusbar{
+  height:26px;flex:none;background:var(--ink);color:#8592AA;font-size:10.8px;
+  display:flex;align-items:center;padding:0 16px;gap:18px;border-top:1px solid var(--ink-line);
+}
+.statusbar span{display:flex;align-items:center;gap:5px;}
+.statusbar .sdot{width:6px;height:6px;border-radius:50%;background:var(--ok);}
+
+/* toast */
+.toast{
+  position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:#F1EAD3;padding:11px 18px;border-radius:9px;font-size:12.5px;
+  box-shadow:var(--shadow-2);opacity:0;pointer-events:none;transition:all .25s ease;
+  display:flex;align-items:center;gap:9px;z-index:50;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast svg{color:var(--ok);flex:none;}
+
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:#D9D5C7;border-radius:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+.main-scroll::-webkit-scrollbar-thumb{background:#DCD8CA;}
+
+@media (max-width:1180px){
+  .chat{display:none;}
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+  .two-col, .vault-wrap, .vx-grid{grid-template-columns:1fr;}
+  .pp-item{grid-template-columns:44px 1fr;gap:12px;}
+  .pp-item .fix{grid-column:2;}
+  .pp-item .goto{grid-column:2;justify-self:start;}
+  .recon-summary{flex-wrap:wrap;}
+  .recon-chip{min-width:140px;}
+}
+@media (prefers-reduced-motion:reduce){
+  .page{animation:none;}
+  .spinner{animation:none;}
+  .msg.typing span{animation:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="app-window">
+
+  <!-- Titlebar -->
+  <div class="titlebar">
+    <div class="dots"><span class="dot close"></span><span class="dot min"></span><span class="dot max"></span></div>
+    <div class="brand"><span class="mark">TF</span> Taxflow AI</div>
+    <div class="searchbar">
+      <div class="box">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        Search clients, filings, documents&hellip;
+      </div>
+    </div>
+    <div class="right">
+      <span>GSTR-3B due in 4 days</span>
+      <div class="user">
+        <div class="avatar">SK</div>
+        Shreya &amp; Co., Chartered Accountants
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="section-label">Overview</div>
+      <button class="navitem active" data-page="dashboard">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Dashboard
+      </button>
+      <button class="navitem" data-page="painpoints">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>
+        Pain Points
+        <span class="badge">10</span>
+      </button>
+
+      <div class="section-label">Automate</div>
+      <button class="navitem" data-page="reminders">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.9 8.38 8.5 8.5 0 0 1-3.8-.9L3 20l1.05-5.15A8.38 8.38 0 0 1 3.5 11.5 8.38 8.38 0 0 1 12 3a8.38 8.38 0 0 1 9 8.5z"/></svg>
+        Reminders
+      </button>
+      <button class="navitem" data-page="vision">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M17 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><circle cx="12" cy="12" r="3.5"/></svg>
+        Vision Extract
+      </button>
+
+      <div class="section-label">Records</div>
+      <button class="navitem" data-page="vault">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
+        Client Vault
+      </button>
+      <button class="navitem" data-page="clients">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Clients
+      </button>
+
+      <div class="section-label">Compliance</div>
+      <button class="navitem" data-page="filings">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6M9 9h1"/></svg>
+        ITR / GSTR Studio
+      </button>
+      <button class="navitem" data-page="recon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3l4 4-4 4"/><path d="M20 7H8a4 4 0 0 0-4 4v1"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h12a4 4 0 0 0 4-4v-1"/></svg>
+        Reconciliation
+      </button>
+
+      <div class="sidebar-foot">
+        <div class="storage-meter"><span>Vault storage</span><span>3.4 GB / 10 GB</span></div>
+        <div class="storage-bar"><div></div></div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+      <div class="main-scroll">
+
+        <!-- ============ DASHBOARD ============ -->
+        <section class="page active" id="page-dashboard">
+          <div class="page-head">
+            <div>
+              <h1>Good morning, Shreya</h1>
+              <p>Here's how the practice stands today across all 38 active clients.</p>
+            </div>
+            <div class="actions">
+              <button class="btn btn-ghost">Export summary</button>
+              <button class="btn btn-brass" data-goto="vision">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                Extract a document
+              </button>
+            </div>
+          </div>
+
+          <div class="stat-grid">
+            <div class="stat-card">
+              <div class="lbl">Active clients</div>
+              <div class="val">38</div>
+              <div class="sub up">+3 onboarded this month</div>
+            </div>
+            <div class="stat-card">
+              <div class="lbl">Filings due this week</div>
+              <div class="val">7</div>
+              <div class="sub warn">2 are overdue by &gt;1 day</div>
+            </div>
+            <div class="stat-card">
+              <div class="lbl">Documents auto-extracted</div>
+              <div class="val">214</div>
+              <div class="sub up">96.4% avg. confidence</div>
+            </div>
+            <div class="stat-card">
+              <div class="lbl">Staff hours saved (MTD)</div>
+              <div class="val">61.5</div>
+              <div class="sub">vs. manual entry baseline</div>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div>
+              <div class="panel">
+                <div class="panel-head">
+                  <h3>Upcoming compliance calendar</h3>
+                  <span class="hint">Next 10 days</span>
+                </div>
+                <div class="panel-body">
+                  <div class="deadline-row">
+                    <div class="deadline-card urgent"><span class="day">18</span><span class="mon">Sep</span><div class="title">GSTR-3B, Aug</div><div class="cnt">9 clients pending</div></div>
+                    <div class="deadline-card"><span class="day">20</span><span class="mon">Sep</span><div class="title">GSTR-1, Aug</div><div class="cnt">6 clients pending</div></div>
+                    <div class="deadline-card"><span class="day">22</span><span class="mon">Sep</span><div class="title">TDS Payment</div><div class="cnt">4 clients pending</div></div>
+                    <div class="deadline-card"><span class="day">25</span><span class="mon">Sep</span><div class="title">PT Return</div><div class="cnt">11 clients pending</div></div>
+                    <div class="deadline-card"><span class="day">30</span><span class="mon">Sep</span><div class="title">Advance Tax Q2</div><div class="cnt">14 clients pending</div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head">
+                  <h3>Clients needing attention</h3>
+                  <span class="hint">Ranked by urgency</span>
+                </div>
+                <div class="panel-body" style="padding:6px 18px 12px;">
+                  <table>
+                    <thead><tr><th>Client</th><th>Pending item</th><th>Due</th><th>Status</th><th></th></tr></thead>
+                    <tbody id="attention-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="panel">
+                <div class="panel-head"><h3>Recent activity</h3></div>
+                <div class="panel-body">
+                  <ul class="feed" id="activity-feed">
+                    <li><span class="dot"></span><div><div class="t">Invoice extracted for <b>Nimbus Retail Pvt Ltd</b> — ₹1,84,200</div><div class="m">Vision Extract · 3 min ago · 98% confidence</div></div></li>
+                    <li><span class="dot"></span><div><div class="t">WhatsApp reminder sent to <b>Ramesh Textiles</b></div><div class="m">Reminders · 22 min ago</div></div></li>
+                    <li><span class="dot"></span><div><div class="t">Bank reconciliation completed for <b>Anand Traders</b></div><div class="m">Reconciliation · 96% auto-matched · 1 hr ago</div></div></li>
+                    <li><span class="dot"></span><div><div class="t">GSTR-3B draft generated for <b>Kaveri Foods LLP</b></div><div class="m">ITR/GSTR Studio · 2 hr ago</div></div></li>
+                    <li><span class="dot"></span><div><div class="t">14 raw bills auto-filed into vault</div><div class="m">Client Vault · this morning</div></div></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><h3>Quick launch</h3></div>
+                <div class="panel-body" style="display:flex;flex-direction:column;gap:8px;">
+                  <button class="btn" style="justify-content:flex-start;" data-goto="reminders">Send this week's reminders</button>
+                  <button class="btn" style="justify-content:flex-start;" data-goto="recon">Open reconciliation queue</button>
+                  <button class="btn" style="justify-content:flex-start;" data-goto="filings">Draft a GSTR-3B</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ PAIN POINTS ============ -->
+        <section class="page" id="page-painpoints">
+          <div class="page-head">
+            <div>
+              <h1>The 10 problems Taxflow AI was built to end</h1>
+              <p>Every page in this app maps directly back to one of these. Nothing here is generic — it's built around how a CA's month actually runs.</p>
+            </div>
+          </div>
+          <div class="pp-list" id="pp-list"></div>
+        </section>
+
+        <!-- ============ REMINDERS ============ -->
+        <section class="page" id="page-reminders">
+          <div class="page-head">
+            <div>
+              <h1>Reminders</h1>
+              <p>Auto-nudge clients over WhatsApp and email for pending invoices, bills, and missing documents — no more chasing manually.</p>
+            </div>
+            <div class="actions">
+              <button class="btn btn-brass" id="send-all-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                Send all pending reminders
+              </button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Message template</h3>
+              <span class="hint">WhatsApp Business API</span>
+            </div>
+            <div class="panel-body two-col" style="grid-template-columns:1fr 1fr;">
+              <div>
+                <div class="field">
+                  <label>Template</label>
+                  <select id="tmpl-select">
+                    <option>Monthly invoice &amp; bill reminder</option>
+                    <option>Missing bank statement follow-up</option>
+                    <option>GST document checklist</option>
+                    <option>Filing deadline warning</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Send via</label>
+                  <select><option>WhatsApp</option><option>WhatsApp + Email</option><option>Email only</option></select>
+                </div>
+              </div>
+              <div class="field" style="margin-bottom:0;">
+                <label>Preview</label>
+                <div style="background:#DCF5E4;border-radius:10px;padding:12px 14px;font-size:12.5px;color:#1B2231;line-height:1.55;">
+                  Hi {{client_name}}, this is a reminder from Shreya &amp; Co. to share your <b>Aug invoices, purchase bills, and bank statement</b> so we can file your GSTR-3B on time. Reply here or upload to your vault link. 🙏
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Clients with pending documents</h3>
+              <span class="hint" id="pending-count-hint">9 pending</span>
+            </div>
+            <div class="panel-body" style="padding:6px 18px 14px;">
+              <table>
+                <thead><tr><th>Client</th><th>Missing</th><th>Last reminder</th><th>Channel</th><th>Status</th><th></th></tr></thead>
+                <tbody id="reminders-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h3>Message log</h3></div>
+            <div class="panel-body">
+              <ul class="feed" id="reminder-log">
+                <li><span class="dot"></span><div><div class="t">Sent to <b>Ramesh Textiles</b> · WhatsApp</div><div class="m">Today, 9:41 AM · Delivered</div></div></li>
+                <li><span class="dot"></span><div><div class="t">Sent to <b>Om Sai Traders</b> · WhatsApp</div><div class="m">Today, 9:41 AM · Read</div></div></li>
+                <li><span class="dot"></span><div><div class="t">Sent to <b>Kaveri Foods LLP</b> · Email + WhatsApp</div><div class="m">Yesterday, 6:10 PM · Delivered</div></div></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ VISION EXTRACT ============ -->
+        <section class="page" id="page-vision">
+          <div class="page-head">
+            <div>
+              <h1>Vision Extract</h1>
+              <p>Select a client, drop in a scanned bill or invoice, and let the vision model turn it into clean structured data — saved straight to their vault.</p>
+            </div>
+          </div>
+
+          <div class="vx-grid">
+            <div>
+              <div class="panel">
+                <div class="panel-body">
+                  <div class="field">
+                    <label>Client</label>
+                    <select id="vx-client">
+                      <option>Nimbus Retail Pvt Ltd</option>
+                      <option>Ramesh Textiles</option>
+                      <option>Anand Traders</option>
+                      <option>Kaveri Foods LLP</option>
+                      <option>Om Sai Traders</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label>Document type</label>
+                    <select id="vx-doctype">
+                      <option>Sales invoice</option>
+                      <option>Purchase bill</option>
+                      <option>Bank statement (scanned)</option>
+                      <option>Expense receipt</option>
+                    </select>
+                  </div>
+                  <div class="field" style="margin-bottom:8px;">
+                    <label>Document</label>
+                    <div class="dropzone" id="dropzone">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 20h16"/></svg><br>
+                      <b>Click to attach</b> a scanned bill or photo<br>PDF, JPG or PNG — up to 15MB
+                    </div>
+                    <div id="vx-filechip"></div>
+                  </div>
+                  <button class="btn btn-brass" id="run-extract-btn" style="width:100%;justify-content:center;" disabled>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.5 3.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z"/><path d="M17 9h4M19 7v4"/><path d="M14.5 12L4 22"/></svg>
+                    Run vision extraction
+                  </button>
+
+                  <div class="progress-steps" id="progress-steps" style="display:none;">
+                    <div class="pstep" data-s="1"><span class="dotwrap"></span> Uploading document</div>
+                    <div class="pstep" data-s="2"><span class="dotwrap"></span> Detecting document type</div>
+                    <div class="pstep" data-s="3"><span class="dotwrap"></span> Extracting fields with vision model</div>
+                    <div class="pstep" data-s="4"><span class="dotwrap"></span> Validating totals &amp; tax math</div>
+                    <div class="pstep" data-s="5"><span class="dotwrap"></span> Saving to client vault</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head"><h3>Recently extracted</h3></div>
+                <div class="panel-body" style="padding:6px 18px 12px;">
+                  <table>
+                    <tbody id="recent-extract-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel" id="extract-result-panel">
+              <div class="panel-head">
+                <h3>Extracted data</h3>
+                <span class="hint" id="extract-conf"></span>
+              </div>
+              <div class="panel-body">
+                <div class="extract-empty" id="extract-empty">
+                  <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6M7 17h4"/></svg>
+                  Attach a document and run extraction to see structured fields here.
+                </div>
+                <div id="extract-content" style="display:none;">
+                  <div class="kv-grid" id="kv-grid"></div>
+                  <div style="margin:16px 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--text-faint);">Structured JSON saved to vault</div>
+                  <pre class="json" id="json-preview"></pre>
+                  <div style="display:flex;gap:10px;margin-top:14px;">
+                    <button class="btn btn-brass" id="save-vault-btn">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                      Confirm &amp; save to vault
+                    </button>
+                    <button class="btn btn-ghost" id="reset-extract-btn">Discard</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ CLIENT VAULT ============ -->
+        <section class="page" id="page-vault">
+          <div class="page-head">
+            <div>
+              <h1>Client Vault</h1>
+              <p>One consistent folder structure for every client — Client → Data → Year → Month → Raw / Extracted. No more hunting across email and WhatsApp.</p>
+            </div>
+            <div class="actions">
+              <button class="btn btn-ghost">New client folder</button>
+            </div>
+          </div>
+
+          <div class="vault-wrap">
+            <div class="panel">
+              <div class="panel-head"><h3>Folders</h3></div>
+              <div class="panel-body tree" id="tree-root"></div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head" style="flex-direction:column;align-items:flex-start;gap:8px;">
+                <div class="filebar" style="width:100%;">
+                  <div class="crumb" id="vault-crumb">Clients / Nimbus Retail Pvt Ltd / Data / 2026 / Aug / Extracted</div>
+                  <button class="btn btn-sm btn-ghost">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                    Upload here
+                  </button>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="file-grid" id="file-grid"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ CLIENTS ============ -->
+        <section class="page" id="page-clients">
+          <div class="page-head">
+            <div>
+              <h1>Clients</h1>
+              <p>All 38 active engagements, their filing status, and where each one stands right now.</p>
+            </div>
+            <div class="actions">
+              <input type="search" id="client-search" placeholder="Filter clients…" style="width:220px;">
+              <button class="btn btn-brass">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                Add client
+              </button>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-body" style="padding:6px 18px 12px;">
+              <table>
+                <thead><tr><th>Client</th><th>GSTIN</th><th>Category</th><th>Documents</th><th>Filing status</th><th>Health</th></tr></thead>
+                <tbody id="clients-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ ITR/GSTR STUDIO ============ -->
+        <section class="page" id="page-filings">
+          <div class="page-head">
+            <div>
+              <h1>ITR / GSTR Studio</h1>
+              <p>Auto-fill returns straight from the extracted vault data instead of re-typing figures from bills and bank statements.</p>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="panel">
+              <div class="panel-head"><h3>Return setup</h3></div>
+              <div class="panel-body">
+                <div class="field">
+                  <label>Client</label>
+                  <select id="fl-client">
+                    <option>Nimbus Retail Pvt Ltd</option>
+                    <option>Kaveri Foods LLP</option>
+                    <option>Ramesh Textiles</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Return type</label>
+                  <select id="fl-type">
+                    <option>GSTR-3B — Monthly Summary</option>
+                    <option>GSTR-1 — Outward Supplies</option>
+                    <option>ITR-4 — Presumptive Income</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Period</label>
+                  <select><option>August 2026</option><option>July 2026</option><option>Q2 FY 2026-27</option></select>
+                </div>
+                <button class="btn btn-brass" id="autofill-btn" style="width:100%;justify-content:center;margin-top:4px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+                  Auto-fill from vault
+                </button>
+              </div>
+            </div>
+
+            <div class="panel" id="filing-preview-panel">
+              <div class="panel-head"><h3>Return preview</h3><span class="hint" id="filing-hint">Not generated yet</span></div>
+              <div class="panel-body">
+                <div class="extract-empty" id="filing-empty" style="min-height:260px;">
+                  <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                  Choose a client and return type, then auto-fill to see the draft here.
+                </div>
+                <div id="filing-content" style="display:none;">
+                  <div class="kv-grid" id="filing-kv"></div>
+                  <div style="display:flex;gap:10px;margin-top:16px;">
+                    <button class="btn btn-brass" id="generate-filing-btn">Generate &amp; download draft</button>
+                    <button class="btn btn-ghost">Send to client for review</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ RECONCILIATION ============ -->
+        <section class="page" id="page-recon">
+          <div class="page-head">
+            <div>
+              <h1>Reconciliation</h1>
+              <p>Bank statement vs. books, matched automatically. Only exceptions need a human eye.</p>
+            </div>
+            <div class="actions">
+              <select style="margin-right:2px;"><option>Nimbus Retail Pvt Ltd — Aug 2026</option></select>
+              <button class="btn btn-brass" id="autorecon-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3l4 4-4 4"/><path d="M20 7H8a4 4 0 0 0-4 4v1"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h12a4 4 0 0 0 4-4v-1"/></svg>
+                Auto-reconcile
+              </button>
+            </div>
+          </div>
+
+          <div class="recon-summary">
+            <div class="recon-chip matched"><div class="n" id="recon-matched">41</div><div class="l">Matched</div></div>
+            <div class="recon-chip partial"><div class="n" id="recon-partial">5</div><div class="l">Partial match</div></div>
+            <div class="recon-chip unmatched"><div class="n" id="recon-unmatched">3</div><div class="l">Unmatched</div></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-body" style="padding:6px 18px 12px;">
+              <table>
+                <thead><tr><th>Date</th><th>Description</th><th>Bank (₹)</th><th>Books (₹)</th><th>Status</th></tr></thead>
+                <tbody id="recon-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- Chat panel -->
+    <div class="chat">
+      <div class="chat-head">
+        <div class="ico">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4v3a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M9 22h6"/></svg>
+        </div>
+        <div>
+          <div class="t">Practice Agent</div>
+          <div class="s">Online · sees your vault</div>
+        </div>
+      </div>
+      <div class="chat-body" id="chat-body">
+        <div class="msg bot">Morning, Shreya. 7 filings are due this week and 9 clients still haven't sent their documents. Want me to send reminders or pull up who's overdue?</div>
+      </div>
+      <div class="chips" id="chat-chips">
+        <div class="chip" data-q="pending">Who has pending GSTR-3B?</div>
+        <div class="chip" data-q="reminders">Send today's reminders</div>
+        <div class="chip" data-q="vault">Summarise Nimbus Retail's vault</div>
+        <div class="chip" data-q="recon">Any unmatched bank entries?</div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="chat-input" placeholder="Ask about any client or filing…">
+        <button id="chat-send" type="button" aria-label="Send message">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Status bar spans full shell width -->
+  <div class="statusbar">
+    <span><span class="sdot"></span> Vault synced</span>
+    <span>38 clients</span>
+    <span>WhatsApp API connected</span>
+    <span>Vision model: taxflow-vision-v2</span>
+    <span style="margin-left:auto;">Taxflow AI · Demo build</span>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>
+  <span id="toast-text">Saved</span>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+const CLIENTS = [
+  {name:"Nimbus Retail Pvt Ltd", gstin:"27ABCDE1234F1Z5", category:"Pvt Ltd · Retail", docs:14, status:"On track", health:"ok"},
+  {name:"Ramesh Textiles", gstin:"24RSTXV5678K1Z2", category:"Proprietorship · Trading", docs:6, status:"Docs pending", health:"warn"},
+  {name:"Anand Traders", gstin:"29ANDTR9021L1Z9", category:"Partnership · Wholesale", docs:19, status:"Reconciled", health:"ok"},
+  {name:"Kaveri Foods LLP", gstin:"33KVFOD4432M1Z3", category:"LLP · FMCG", docs:11, status:"Filing drafted", health:"ok"},
+  {name:"Om Sai Traders", gstin:"27OMSAI7765N1Z7", category:"Proprietorship · Trading", docs:3, status:"Docs pending", health:"bad"},
+  {name:"Shivam Industries", gstin:"24SHVMI2201P1Z4", category:"Pvt Ltd · Manufacturing", docs:22, status:"On track", health:"ok"},
+  {name:"Green Leaf Exports", gstin:"29GRNLF3390Q1Z1", category:"Pvt Ltd · Export", docs:8, status:"Docs pending", health:"warn"},
+  {name:"Patel Auto Spares", gstin:"24PTLAT6612R1Z8", category:"Proprietorship · Retail", docs:17, status:"Reconciled", health:"ok"},
+];
+
+const ATTENTION = [
+  {name:"Om Sai Traders", item:"No documents received — GSTR-3B", due:"18 Sep", status:"bad", goto:"reminders", action:"Nudge"},
+  {name:"Ramesh Textiles", item:"Bank statement missing", due:"20 Sep", status:"warn", goto:"reminders", action:"Nudge"},
+  {name:"Green Leaf Exports", item:"3 purchase bills unverified", due:"22 Sep", status:"warn", goto:"vision", action:"Extract"},
+  {name:"Anand Traders", item:"TDS challan pending upload", due:"22 Sep", status:"warn", goto:"vault", action:"Open vault"},
+];
+
+const REMINDER_ROWS = [
+  {name:"Om Sai Traders", missing:"All Aug invoices & bills", last:"Never", channel:"WhatsApp"},
+  {name:"Ramesh Textiles", missing:"Bank statement (Aug)", last:"3 days ago", channel:"WhatsApp"},
+  {name:"Green Leaf Exports", missing:"3 purchase bills", last:"1 day ago", channel:"WhatsApp + Email"},
+  {name:"Patel Auto Spares", missing:"Sales register", last:"5 days ago", channel:"Email"},
+  {name:"Shivam Industries", missing:"Expense receipts", last:"2 days ago", channel:"WhatsApp"},
+];
+
+const RECENT_EXTRACTS = [
+  {name:"Nimbus Retail Pvt Ltd", doc:"Invoice #INV-2291", amt:"₹1,84,200", conf:"98%"},
+  {name:"Kaveri Foods LLP", doc:"Purchase Bill #PB-118", amt:"₹42,650", conf:"95%"},
+  {name:"Shivam Industries", doc:"Expense Receipt", amt:"₹3,120", conf:"91%"},
+];
+
+const VAULT_TREE = {
+  "Clients": {
+    "Nimbus Retail Pvt Ltd": {"Data": {"2026": {"Aug": {"Raw": 9, "Extracted": 8}, "Jul": {"Raw": 11, "Extracted": 11}}}},
+    "Ramesh Textiles": {"Data": {"2026": {"Aug": {"Raw": 2, "Extracted": 1}, "Jul": {"Raw": 7, "Extracted": 7}}}},
+    "Anand Traders": {"Data": {"2026": {"Aug": {"Raw": 14, "Extracted": 14}}}},
+    "Kaveri Foods LLP": {"Data": {"2026": {"Aug": {"Raw": 10, "Extracted": 9}}}},
+  }
+};
+
+const FILES_EXAMPLE = [
+  {name:"INV-2288_extracted.json", type:"json"}, {name:"INV-2289_extracted.json", type:"json"},
+  {name:"INV-2290_extracted.json", type:"json"}, {name:"INV-2291_extracted.json", type:"json"},
+  {name:"PB-118_extracted.json", type:"json"}, {name:"bank_aug_extracted.xlsx", type:"xls"},
+  {name:"expense_summary.pdf", type:"pdf"}, {name:"INV-2287_extracted.json", type:"json"},
+];
+
+const RECON_ROWS = [
+  {date:"02 Aug", desc:"NEFT — Nimbus Retail Collections", bank:"1,84,200", book:"1,84,200", status:"ok"},
+  {date:"04 Aug", desc:"UPI — Om Sai Traders payment", bank:"22,500", book:"22,500", status:"ok"},
+  {date:"06 Aug", desc:"Cheque #004521 cleared", bank:"58,000", book:"58,000", status:"ok"},
+  {date:"09 Aug", desc:"Bank charges", bank:"350", book:"—", status:"bad"},
+  {date:"11 Aug", desc:"NEFT — Shivam Industries", bank:"1,10,000", book:"1,08,500", status:"warn"},
+  {date:"14 Aug", desc:"GST refund credit", bank:"14,200", book:"14,200", status:"ok"},
+  {date:"18 Aug", desc:"Interest income", bank:"—", book:"640", status:"bad"},
+  {date:"21 Aug", desc:"UPI — Anand Traders", bank:"76,300", book:"76,000", status:"warn"},
+];
+
+const PAIN_POINTS = [
+  {t:"Chasing clients for invoices & bills every month", d:"Hours lost calling and WhatsApping clients individually just to get basic documents.", f:"Automated WhatsApp reminders on a schedule, with a live log of who's responded.", page:"reminders"},
+  {t:"Manual data entry from scanned bills", d:"Junior staff retyping vendor, amount, tax and date from blurry photos, bill after bill.", f:"Vision AI reads the document and returns structured, validated fields in seconds.", page:"vision"},
+  {t:"Documents scattered everywhere", d:"Bills living across email, WhatsApp, and personal drives with no consistent naming.", f:"One vault per client — Data → Year → Month → Raw / Extracted, every time.", page:"vault"},
+  {t:"Missed GST & ITR deadlines", d:"Deadlines tracked in someone's head or a spreadsheet that's always slightly out of date.", f:"A live compliance calendar surfaces what's due, and what's still missing, every morning.", page:"dashboard"},
+  {t:"Bank reconciliation eats a full day monthly", d:"Manually matching hundreds of bank lines against the books, client by client.", f:"Auto-matching engine clears the obvious entries and flags only the real exceptions.", page:"recon"},
+  {t:"Re-typing figures into GSTR / ITR forms", d:"Numbers already extracted get typed a second time straight into the return.", f:"One-click auto-fill pulls figures directly from the vault into the return draft.", page:"filings"},
+  {t:"No single view of the practice", d:"Partners can't see, at a glance, which clients are on track and which are at risk.", f:"A dashboard rolling up every client, every deadline, and every pending action.", page:"dashboard"},
+  {t:"Inconsistent file naming causes errors", d:"Ad-hoc folder names mean the wrong bill gets used, or nothing is found in time.", f:"Every client gets the exact same standardised, auto-organised folder structure.", page:"vault"},
+  {t:"\u201cWhat's still pending?\u201d takes digging", d:"Answering a simple status question means opening five different files.", f:"The practice agent answers instantly from live vault and filing data — just ask.", page:"dashboard"},
+  {t:"Slow onboarding for new staff", d:"Every new hire has to learn a different mental map for where things live.", f:"One consistent workflow and layout across every single client, no exceptions.", page:"clients"},
+];
+
+/* ===================== NAV ===================== */
+const navitems = document.querySelectorAll(".navitem");
+function goToPage(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("page-"+id).classList.add("active");
+  navitems.forEach(n=>n.classList.toggle("active", n.dataset.page===id));
+  document.querySelector(".main-scroll").scrollTop = 0;
+}
+navitems.forEach(n=>n.addEventListener("click", ()=>goToPage(n.dataset.page)));
+document.addEventListener("click", (e)=>{
+  const btn = e.target.closest("[data-goto]");
+  if(btn) goToPage(btn.dataset.goto);
+});
+
+/* ===================== TOAST ===================== */
+function showToast(text){
+  const t=document.getElementById("toast");
+  document.getElementById("toast-text").textContent=text;
+  t.classList.add("show");
+  clearTimeout(window._toastTimer);
+  window._toastTimer=setTimeout(()=>t.classList.remove("show"), 2600);
+}
+
+/* ===================== DASHBOARD ===================== */
+function badgeFor(status){
+  const map={ok:"ok",warn:"warn",bad:"bad"};
+  return map[status]||"neutral";
+}
+const attBody=document.getElementById("attention-body");
+ATTENTION.forEach(r=>{
+  attBody.insertAdjacentHTML("beforeend", `
+    <tr class="tr-hover">
+      <td class="row-flex"><div class="avatar-sm">${initials(r.name)}</div><div class="cell-strong">${r.name}</div></td>
+      <td>${r.item}</td>
+      <td>${r.due}</td>
+      <td><span class="badge ${badgeFor(r.status)}">${r.status==='bad'?'Overdue':r.status==='warn'?'At risk':'On track'}</span></td>
+      <td><button class="btn btn-sm btn-ghost" data-goto="${r.goto}">${r.action}</button></td>
+    </tr>`);
+});
+
+function initials(name){ return name.split(" ").filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase(); }
+
+/* ===================== PAIN POINTS ===================== */
+const ppList=document.getElementById("pp-list");
+PAIN_POINTS.forEach((p,i)=>{
+  ppList.insertAdjacentHTML("beforeend", `
+    <div class="pp-item">
+      <div class="pp-num">${String(i+1).padStart(2,'0')}</div>
+      <div><h4>${p.t}</h4><div class="desc">${p.d}</div></div>
+      <div class="fix"><b>Solved:</b> ${p.f}</div>
+      <button class="btn btn-sm goto" data-goto="${p.page}">Open →</button>
+    </div>`);
+});
+
+/* ===================== CLIENTS ===================== */
+const clientsBody=document.getElementById("clients-body");
+function renderClients(filter=""){
+  clientsBody.innerHTML="";
+  CLIENTS.filter(c=>c.name.toLowerCase().includes(filter.toLowerCase())).forEach(c=>{
+    clientsBody.insertAdjacentHTML("beforeend", `
+      <tr class="tr-hover">
+        <td class="row-flex"><div class="avatar-sm">${initials(c.name)}</div><div><div class="cell-strong">${c.name}</div><div class="cell-sub">${c.gstin}</div></div></td>
+        <td class="cell-sub">${c.gstin}</td>
+        <td>${c.category}</td>
+        <td>${c.docs} files</td>
+        <td>${c.status}</td>
+        <td><span class="badge ${badgeFor(c.health)}">${c.health==='ok'?'Healthy':c.health==='warn'?'Attention':'Critical'}</span></td>
+      </tr>`);
+  });
+}
+renderClients();
+document.getElementById("client-search").addEventListener("input", e=>renderClients(e.target.value));
+
+/* ===================== REMINDERS ===================== */
+const remindersBody=document.getElementById("reminders-body");
+function renderReminders(){
+  remindersBody.innerHTML="";
+  REMINDER_ROWS.forEach((r,idx)=>{
+    remindersBody.insertAdjacentHTML("beforeend", `
+      <tr class="tr-hover" data-idx="${idx}">
+        <td class="row-flex"><div class="avatar-sm">${initials(r.name)}</div><div class="cell-strong">${r.name}</div></td>
+        <td>${r.missing}</td>
+        <td class="cell-sub">${r.last}</td>
+        <td><span class="badge brass">${r.channel}</span></td>
+        <td class="status-cell"><span class="badge warn">Pending</span></td>
+        <td><button class="btn btn-sm send-one">Send now</button></td>
+      </tr>`);
+  });
+}
+renderReminders();
+function addLog(text, meta){
+  const log=document.getElementById("reminder-log");
+  const li=document.createElement("li");
+  li.innerHTML=`<span class="dot"></span><div><div class="t">${text}</div><div class="m">${meta}</div></div>`;
+  log.prepend(li);
+}
+remindersBody.addEventListener("click", e=>{
+  if(!e.target.classList.contains("send-one")) return;
+  const row=e.target.closest("tr");
+  const name=row.querySelector(".cell-strong").textContent;
+  row.querySelector(".status-cell").innerHTML='<span class="badge ok">Sent</span>';
+  e.target.disabled=true; e.target.textContent="Sent";
+  addLog(`Sent to <b>${name}</b> · WhatsApp`, "Just now · Delivered");
+  showToast(`Reminder sent to ${name}`);
+});
+document.getElementById("send-all-btn").addEventListener("click", ()=>{
+  document.querySelectorAll(".send-one:not([disabled])").forEach(b=>b.click());
+  showToast("All pending reminders sent");
+});
+
+/* ===================== RECENT EXTRACTS on Vision page ===================== */
+const recentBody=document.getElementById("recent-extract-body");
+function renderRecent(){
+  recentBody.innerHTML="";
+  RECENT_EXTRACTS.forEach(r=>{
+    recentBody.insertAdjacentHTML("beforeend", `
+      <tr class="tr-hover">
+        <td class="row-flex"><div class="avatar-sm">${initials(r.name)}</div><div><div class="cell-strong">${r.doc}</div><div class="cell-sub">${r.name}</div></div></td>
+        <td class="cell-strong" style="text-align:right;">${r.amt}</td>
+        <td><span class="badge ok">${r.conf}</span></td>
+      </tr>`);
+  });
+}
+renderRecent();
+
+/* ===================== VISION EXTRACT FLOW ===================== */
+const dropzone=document.getElementById("dropzone");
+const filechip=document.getElementById("vx-filechip");
+const runBtn=document.getElementById("run-extract-btn");
+let fileAttached=false;
+dropzone.addEventListener("click", ()=>{
+  fileAttached=true;
+  const names=["scan_invoice_0042.jpg","bill_photo_final.png","aug_purchase_bill.pdf"];
+  const fname=names[Math.floor(Math.random()*names.length)];
+  filechip.innerHTML=`<div class="file-chip"><div class="ico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div><div>${fname}<div class="cell-sub">2.1 MB · attached</div></div></div>`;
+  runBtn.disabled=false;
+});
+
+const stepsWrap=document.getElementById("progress-steps");
+const steps=[...document.querySelectorAll(".pstep")];
+const extractEmpty=document.getElementById("extract-empty");
+const extractContent=document.getElementById("extract-content");
+const extractConf=document.getElementById("extract-conf");
+
+const SAMPLE_RESULTS = [
+  {vendor:"Sunrise Paper Mills", invno:"INV-7745", date:"11 Aug 2026", amount:"₹68,900", tax:"₹12,402 (IGST 18%)", category:"Purchase — Raw Material", conf:"97%"},
+  {vendor:"Nimbus Retail Pvt Ltd", invno:"INV-2291", date:"12 Aug 2026", amount:"₹1,84,200", tax:"₹28,098 (CGST+SGST 18%)", category:"Sales Invoice", conf:"98%"},
+  {vendor:"Blue Ocean Logistics", invno:"BOL-1183", date:"09 Aug 2026", amount:"₹14,750", tax:"₹1,770 (GST 12%)", category:"Freight Expense", conf:"93%"},
+];
+
+runBtn.addEventListener("click", ()=>{
+  if(!fileAttached) return;
+  runBtn.disabled=true;
+  stepsWrap.style.display="flex";
+  steps.forEach(s=>s.classList.remove("done","active"));
+  extractEmpty.style.display="none";
+  extractContent.style.display="none";
+  let i=0;
+  function next(){
+    if(i>0) steps[i-1].classList.remove("active");
+    if(i>0){ steps[i-1].classList.add("done"); steps[i-1].querySelector(".dotwrap").innerHTML='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>'; }
+    if(i<steps.length){
+      steps[i].classList.add("active");
+      steps[i].querySelector(".dotwrap").innerHTML='<span class="spinner"></span>';
+      i++;
+      setTimeout(next, 550);
+    } else {
+      showExtractResult();
+      runBtn.disabled=false;
+    }
+  }
+  next();
+});
+
+function showExtractResult(){
+  const r = SAMPLE_RESULTS[Math.floor(Math.random()*SAMPLE_RESULTS.length)];
+  extractConf.innerHTML = `<span class="confidence">${r.conf} confidence</span>`;
+  document.getElementById("kv-grid").innerHTML = `
+    <div class="kv"><div class="k">Vendor</div><div class="v">${r.vendor}</div></div>
+    <div class="kv"><div class="k">Invoice No.</div><div class="v">${r.invno}</div></div>
+    <div class="kv"><div class="k">Date</div><div class="v">${r.date}</div></div>
+    <div class="kv"><div class="k">Amount</div><div class="v">${r.amount}</div></div>
+    <div class="kv"><div class="k">Tax</div><div class="v">${r.tax}</div></div>
+    <div class="kv"><div class="k">Category</div><div class="v">${r.category}</div></div>
+  `;
+  document.getElementById("json-preview").innerHTML =
+`{
+  <span class="k">"vendor"</span>: <span class="s">"${r.vendor}"</span>,
+  <span class="k">"invoice_no"</span>: <span class="s">"${r.invno}"</span>,
+  <span class="k">"date"</span>: <span class="s">"${r.date}"</span>,
+  <span class="k">"amount_inr"</span>: <span class="s">"${r.amount.replace('₹','')}"</span>,
+  <span class="k">"tax"</span>: <span class="s">"${r.tax}"</span>,
+  <span class="k">"category"</span>: <span class="s">"${r.category}"</span>,
+  <span class="k">"confidence"</span>: <span class="s">"${r.conf}"</span>
+}`;
+  extractContent.style.display="block";
+}
+
+document.getElementById("save-vault-btn").addEventListener("click", ()=>{
+  showToast("Saved to client vault");
+  const client = document.getElementById("vx-client").value;
+  RECENT_EXTRACTS.unshift({name:client, doc:"New document", amt:"—", conf:"—"});
+  renderRecent();
+});
+document.getElementById("reset-extract-btn").addEventListener("click", ()=>{
+  extractContent.style.display="none";
+  extractEmpty.style.display="flex";
+  stepsWrap.style.display="none";
+  filechip.innerHTML="";
+  fileAttached=false;
+  runBtn.disabled=true;
+});
+
+/* ===================== VAULT TREE ===================== */
+const treeIcons = {
+  folder: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>`,
+  chev: `<svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg>`
+};
+function buildTree(obj, path=[], depth=0){
+  let html = "<ul>";
+  for(const key in obj){
+    const val = obj[key];
+    const fullPath = [...path, key];
+    const isLeafCount = typeof val === "number";
+    const openAttr = depth < 2 ? "open" : "";
+    if(isLeafCount){
+      html += `<li><div class="node" data-path="${fullPath.join(' / ')}">${treeIcons.folder}<span>${key}</span><span class="count">${val} files</span></div></li>`;
+    } else {
+      html += `<li class="${openAttr}"><div class="node" data-path="${fullPath.join(' / ')}">${treeIcons.chev}${treeIcons.folder}<span>${key}</span></div>${buildTree(val, fullPath, depth+1)}</li>`;
+    }
+  }
+  html += "</ul>";
+  return html;
+}
+document.getElementById("tree-root").innerHTML = `<div class="tree">${buildTree(VAULT_TREE)}</div>`;
+
+function renderFiles(pathLabel){
+  document.getElementById("vault-crumb").innerHTML = pathLabel.split(" / ").map((p,i,a)=> i===a.length-1 ? `<b>${p}</b>` : p).join(" / ");
+  const grid = document.getElementById("file-grid");
+  grid.innerHTML = "";
+  FILES_EXAMPLE.forEach(f=>{
+    const icoClass = f.type==="pdf" ? "pdf" : f.type==="xls" ? "xls" : "";
+    grid.insertAdjacentHTML("beforeend", `
+      <div class="file-card">
+        <div class="ico ${icoClass}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        </div>
+        <div class="name">${f.name}</div>
+        <div class="meta">Auto-filed · Aug 2026</div>
+      </div>`);
+  });
+}
+renderFiles("Clients / Nimbus Retail Pvt Ltd / Data / 2026 / Aug / Extracted");
+
+document.getElementById("tree-root").addEventListener("click", (e)=>{
+  const node = e.target.closest(".node");
+  if(!node) return;
+  const li = node.parentElement;
+  if(li.querySelector(":scope > ul")){
+    li.classList.toggle("open");
+  }
+  document.querySelectorAll(".tree .node").forEach(n=>n.classList.remove("selected"));
+  node.classList.add("selected");
+  if(node.dataset.path){
+    renderFiles(node.dataset.path);
+    showToast("Opened " + node.dataset.path.split(" / ").slice(-1)[0]);
+  }
+});
+
+/* ===================== RECONCILIATION ===================== */
+const reconBody=document.getElementById("recon-body");
+function statusLabel(s){ return s==="ok"?"Matched":s==="warn"?"Partial":"Unmatched"; }
+function renderRecon(){
+  reconBody.innerHTML="";
+  RECON_ROWS.forEach(r=>{
+    reconBody.insertAdjacentHTML("beforeend", `
+      <tr class="tr-hover">
+        <td>${r.date}</td>
+        <td class="cell-strong">${r.desc}</td>
+        <td>${r.bank}</td>
+        <td>${r.book}</td>
+        <td><span class="badge ${badgeFor(r.status)}">${statusLabel(r.status)}</span></td>
+      </tr>`);
+  });
+  const matched = RECON_ROWS.filter(r=>r.status==="ok").length;
+  const partial = RECON_ROWS.filter(r=>r.status==="warn").length;
+  const unmatched = RECON_ROWS.filter(r=>r.status==="bad").length;
+  document.getElementById("recon-matched").textContent = matched;
+  document.getElementById("recon-partial").textContent = partial;
+  document.getElementById("recon-unmatched").textContent = unmatched;
+}
+renderRecon();
+
+document.getElementById("autorecon-btn").addEventListener("click", ()=>{
+  let newly = 0;
+  RECON_ROWS.forEach(r=>{
+    if(r.status==="warn"){ r.status="ok"; newly++; }
+  });
+  renderRecon();
+  showToast(newly ? `Auto-reconcile matched ${newly} more line${newly===1?"":"s"}` : "No new matches found");
+});
+
+/* ===================== ITR / GSTR STUDIO ===================== */
+document.getElementById("autofill-btn").addEventListener("click", ()=>{
+  const client = document.getElementById("fl-client").value;
+  const type = document.getElementById("fl-type").value.split("—")[0].trim();
+  document.getElementById("filing-empty").style.display="none";
+  document.getElementById("filing-content").style.display="block";
+  document.getElementById("filing-hint").textContent = "Draft from vault · review required";
+  document.getElementById("filing-kv").innerHTML = `
+    <div class="kv"><div class="k">Client</div><div class="v">${client}</div></div>
+    <div class="kv"><div class="k">Return</div><div class="v">${type}</div></div>
+    <div class="kv"><div class="k">Taxable value</div><div class="v">₹18,42,600</div></div>
+    <div class="kv"><div class="k">Output tax</div><div class="v">₹3,31,668</div></div>
+    <div class="kv"><div class="k">ITC claimed</div><div class="v">₹1,12,440</div></div>
+    <div class="kv"><div class="k">Net payable</div><div class="v">₹2,19,228</div></div>
+    <div class="kv"><div class="k">Source documents</div><div class="v">14 confirmed</div></div>
+    <div class="kv"><div class="k">Avg. confidence</div><div class="v">96.8%</div></div>
+  `;
+  showToast("Return draft auto-filled from vault");
+});
+document.getElementById("generate-filing-btn").addEventListener("click", ()=>{
+  showToast("Draft downloaded — review before filing");
+});
+
+/* ===================== ADD CLIENT ===================== */
+document.querySelector('#page-clients .btn-brass').addEventListener("click", ()=>{
+  CLIENTS.unshift({
+    name: "New Client " + (CLIENTS.length + 1),
+    gstin:"27NEWCL" + String(1000 + CLIENTS.length) + "Z1Z9",
+    category:"Proprietorship · Trading",
+    docs:0,
+    status:"Onboarding",
+    health:"warn"
+  });
+  renderClients(document.getElementById("client-search").value);
+  showToast("Client added — vault folders provisioned");
+});
+
+/* ===================== PRACTICE AGENT ===================== */
+const chatBody = document.getElementById("chat-body");
+const chatInput = document.getElementById("chat-input");
+const AGENT_ANSWERS = {
+  pending: "Clients still pending for GSTR-3B (Aug): <b>Om Sai Traders</b> (no docs), <b>Ramesh Textiles</b> (bank statement), and <b>Green Leaf Exports</b> (3 purchase bills). Want me to open Reminders?",
+  reminders: "I can route you to Reminders, but I won't send messages myself. Open Reminders and use <b>Send all pending reminders</b> — there are 5 clients waiting.",
+  vault: "<b>Nimbus Retail Pvt Ltd</b> vault for Aug 2026: 9 raw files, 8 extracted. Latest: INV-2291 at ₹1,84,200 (98% confidence). Jul is fully filed (11/11).",
+  recon: "Nimbus Aug bank recon: <b>3 unmatched</b> and <b>5 partial</b> lines need review — bank charges ₹350, interest ₹640, and amount mismatches on Shivam Industries and Anand Traders. Open Reconciliation to resolve them."
+};
+function agentReply(text){
+  const typing = document.createElement("div");
+  typing.className = "msg bot typing";
+  typing.innerHTML = "<span></span><span></span><span></span>";
+  chatBody.appendChild(typing);
+  chatBody.scrollTop = chatBody.scrollHeight;
+  setTimeout(()=>{
+    typing.remove();
+    const msg = document.createElement("div");
+    msg.className = "msg bot";
+    msg.innerHTML = text;
+    chatBody.appendChild(msg);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }, 700);
+}
+function askAgent(q, chipKey){
+  if(!q.trim()) return;
+  const user = document.createElement("div");
+  user.className = "msg user";
+  user.textContent = q;
+  chatBody.appendChild(user);
+  chatBody.scrollTop = chatBody.scrollHeight;
+  let answer = AGENT_ANSWERS[chipKey];
+  if(!answer){
+    const lower = q.toLowerCase();
+    if(lower.includes("gstr") || lower.includes("pending")) answer = AGENT_ANSWERS.pending;
+    else if(lower.includes("remind")) answer = AGENT_ANSWERS.reminders;
+    else if(lower.includes("vault") || lower.includes("nimbus")) answer = AGENT_ANSWERS.vault;
+    else if(lower.includes("recon") || lower.includes("bank") || lower.includes("unmatch")) answer = AGENT_ANSWERS.recon;
+    else answer = "I can help with filing status, pending documents, vault contents, and reconciliation exceptions. Try one of the suggested questions below.";
+  }
+  agentReply(answer);
+  if(chipKey==="reminders") setTimeout(()=>goToPage("reminders"), 900);
+  if(chipKey==="recon") setTimeout(()=>goToPage("recon"), 900);
+  if(chipKey==="vault") setTimeout(()=>goToPage("vault"), 900);
+  if(chipKey==="pending") setTimeout(()=>goToPage("reminders"), 1100);
+}
+document.getElementById("chat-chips").addEventListener("click", (e)=>{
+  const chip = e.target.closest(".chip");
+  if(!chip) return;
+  askAgent(chip.textContent, chip.dataset.q);
+});
+document.getElementById("chat-send").addEventListener("click", ()=>{
+  const q = chatInput.value;
+  chatInput.value = "";
+  askAgent(q);
+});
+chatInput.addEventListener("keydown", (e)=>{
+  if(e.key==="Enter"){
+    const q = chatInput.value;
+    chatInput.value = "";
+    askAgent(q);
+  }
+});
+</script>
+</body>
+</html>
