@@ -75,6 +75,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.documentElement.setAttribute("data-theme", savedTheme);
   } catch(e){}
 
+  // Draggable Resizers & Topbar Toggles
+  initLayoutResizers();
+  initPanelToggles();
+
   // Practice Agent Chat logic
   initPracticeAgent();
 });
@@ -158,4 +162,105 @@ function initPracticeAgent() {
       askAgent(q);
     }
   });
+}
+
+function initLayoutResizers() {
+  const sidebar = document.querySelector(".sidebar");
+  const chat = document.querySelector(".chat");
+  const resizerLeft = document.getElementById("resizer-sidebar");
+  const resizerRight = document.getElementById("resizer-chat");
+  const layout = document.querySelector(".layout");
+
+  if (resizerLeft && sidebar) {
+    let isDragging = false;
+    resizerLeft.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      resizerLeft.classList.add("dragging");
+      document.body.style.userSelect = "none";
+      document.body.style.cursor = "col-resize";
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      const layoutRect = layout.getBoundingClientRect();
+      const newWidth = e.clientX - layoutRect.left;
+      if (newWidth < 100) {
+        sidebar.classList.add("collapsed");
+      } else {
+        sidebar.classList.remove("collapsed");
+        const clampedWidth = Math.max(140, Math.min(newWidth, 400));
+        sidebar.style.width = clampedWidth + "px";
+        try { localStorage.setItem("taxflow-sidebar-width", clampedWidth); } catch(err){}
+      }
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (isDragging) {
+        isDragging = false;
+        resizerLeft.classList.remove("dragging");
+        document.body.style.userSelect = "";
+        document.body.style.cursor = "";
+      }
+    });
+  }
+
+  if (resizerRight && chat) {
+    let isDragging = false;
+    resizerRight.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      resizerRight.classList.add("dragging");
+      document.body.style.userSelect = "none";
+      document.body.style.cursor = "col-resize";
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      const layoutRect = layout.getBoundingClientRect();
+      const newWidth = layoutRect.right - e.clientX;
+      if (newWidth < 120) {
+        chat.classList.add("collapsed");
+      } else {
+        chat.classList.remove("collapsed");
+        const clampedWidth = Math.max(160, Math.min(newWidth, 600));
+        chat.style.width = clampedWidth + "px";
+        try { localStorage.setItem("taxflow-chat-width", clampedWidth); } catch(err){}
+      }
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (isDragging) {
+        isDragging = false;
+        resizerRight.classList.remove("dragging");
+        document.body.style.userSelect = "";
+        document.body.style.cursor = "";
+      }
+    });
+  }
+}
+
+function initPanelToggles() {
+  const toggleSidebarBtn = document.getElementById("toggle-sidebar-btn");
+  const toggleChatBtn = document.getElementById("toggle-chat-btn");
+  const sidebar = document.querySelector(".sidebar");
+  const chat = document.querySelector(".chat");
+
+  if (toggleSidebarBtn && sidebar) {
+    toggleSidebarBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("collapsed");
+      if (!sidebar.classList.contains("collapsed")) {
+        const savedW = localStorage.getItem("taxflow-sidebar-width") || 224;
+        sidebar.style.width = savedW + "px";
+      }
+    });
+  }
+
+  if (toggleChatBtn && chat) {
+    toggleChatBtn.addEventListener("click", () => {
+      chat.classList.toggle("collapsed");
+      if (!chat.classList.contains("collapsed")) {
+        const savedW = localStorage.getItem("taxflow-chat-width") || 318;
+        chat.style.width = savedW + "px";
+      }
+    });
+  }
 }

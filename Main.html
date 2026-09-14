@@ -23,6 +23,9 @@
   <!-- Titlebar -->
   <div class="titlebar">
     <div class="dots"><span class="dot close"></span><span class="dot min"></span><span class="dot max"></span></div>
+    <button class="titlebar-btn" id="toggle-sidebar-btn" title="Toggle Sidebar">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+    </button>
     <div class="brand"><span class="mark">TF</span> Taxflow AI</div>
     <div class="searchbar">
       <div class="box">
@@ -32,6 +35,10 @@
     </div>
     <div class="right">
       <span>GSTR-3B due in 4 days</span>
+      <button class="titlebar-btn" id="toggle-chat-btn" title="Toggle AI Assistant" style="color:var(--brass);font-weight:600;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 12L2.5 4.5"/><path d="M12 12v9.5"/></svg>
+        AI Assistant
+      </button>
       <div class="user">
         <div class="avatar">SK</div>
         Shreya &amp; Co., Chartered Accountants
@@ -92,6 +99,9 @@
       </div>
     </div>
 
+    <!-- Draggable Sidebar Resizer -->
+    <div class="resizer" id="resizer-sidebar" title="Drag to resize sidebar"></div>
+
     <!-- Main Content Area -->
     <div class="main">
       <div class="main-scroll">
@@ -135,40 +145,40 @@
             </div>
           </div>
 
-          <div class="two-col">
-            <div>
-              <div class="panel">
-                <div class="panel-head">
-                  <h3>Upcoming compliance calendar</h3>
-                  <span class="hint">Next 10 days</span>
-                </div>
-                <div class="panel-body">
-                  <div class="deadline-row">
-                    <div class="deadline-card urgent"><span class="day">18</span><span class="mon">Sep</span><div class="title">GSTR-3B, Aug</div><div class="cnt">9 clients pending</div></div>
-                    <div class="deadline-card"><span class="day">20</span><span class="mon">Sep</span><div class="title">GSTR-1, Aug</div><div class="cnt">6 clients pending</div></div>
-                    <div class="deadline-card"><span class="day">22</span><span class="mon">Sep</span><div class="title">TDS Payment</div><div class="cnt">4 clients pending</div></div>
-                    <div class="deadline-card"><span class="day">25</span><span class="mon">Sep</span><div class="title">PT Return</div><div class="cnt">11 clients pending</div></div>
-                    <div class="deadline-card"><span class="day">30</span><span class="mon">Sep</span><div class="title">Advance Tax Q2</div><div class="cnt">14 clients pending</div></div>
-                  </div>
-                </div>
+          <!-- Dashboard Main Stack -->
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Upcoming compliance calendar</h3>
+                <span class="hint">Next 10 days</span>
               </div>
-
-              <div class="panel">
-                <div class="panel-head">
-                  <h3>Clients needing attention</h3>
-                  <span class="hint">Ranked by urgency</span>
-                </div>
-                <div class="panel-body" style="padding:6px 18px 12px;">
-                  <table>
-                    <thead><tr><th>Client</th><th>Pending item</th><th>Due</th><th>Status</th><th></th></tr></thead>
-                    <tbody id="attention-body"></tbody>
-                  </table>
+              <div class="panel-body">
+                <div class="deadline-row">
+                  <div class="deadline-card urgent"><span class="day">18</span><span class="mon">Sep</span><div class="title">GSTR-3B, Aug</div><div class="cnt">9 clients pending</div></div>
+                  <div class="deadline-card"><span class="day">20</span><span class="mon">Sep</span><div class="title">GSTR-1, Aug</div><div class="cnt">6 clients pending</div></div>
+                  <div class="deadline-card"><span class="day">22</span><span class="mon">Sep</span><div class="title">TDS Payment</div><div class="cnt">4 clients pending</div></div>
+                  <div class="deadline-card"><span class="day">25</span><span class="mon">Sep</span><div class="title">PT Return</div><div class="cnt">11 clients pending</div></div>
+                  <div class="deadline-card"><span class="day">30</span><span class="mon">Sep</span><div class="title">Advance Tax Q2</div><div class="cnt">14 clients pending</div></div>
                 </div>
               </div>
             </div>
 
-            <div>
-              <div class="panel">
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Clients needing attention</h3>
+                <span class="hint">Ranked by urgency</span>
+              </div>
+              <div class="panel-body" style="padding:6px 18px 12px;">
+                <table>
+                  <thead><tr><th>Client</th><th>Pending item</th><th>Due</th><th>Status</th><th></th></tr></thead>
+                  <tbody id="attention-body"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Recent Activity & Quick Launch Moved DIRECTLY Under Clients Needing Attention -->
+            <div class="two-col" style="margin-top:0;">
+              <div class="panel" style="margin-top:0;">
                 <div class="panel-head"><h3>Recent activity</h3></div>
                 <div class="panel-body">
                   <ul class="feed" id="activity-feed">
@@ -180,7 +190,8 @@
                   </ul>
                 </div>
               </div>
-              <div class="panel">
+
+              <div class="panel" style="margin-top:0;">
                 <div class="panel-head"><h3>Quick launch</h3></div>
                 <div class="panel-body" style="display:flex;flex-direction:column;gap:8px;">
                   <button class="btn" style="justify-content:flex-start;" data-goto="reminders">Send this week's reminders</button>
@@ -191,7 +202,6 @@
             </div>
           </div>
         </section>
-
 
         <!-- ============ REMINDERS ============ -->
         <section class="page" id="page-reminders">
@@ -729,6 +739,9 @@
 
       </div>
     </div>
+
+    <!-- Draggable Chat Panel Resizer -->
+    <div class="resizer" id="resizer-chat" title="Drag to resize chat panel"></div>
 
     <!-- Practice Assistant Chat Sidebar -->
     <div class="chat">

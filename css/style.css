@@ -231,6 +231,46 @@ body {
 .storage-bar { height: 5px; border-radius: 4px; background: rgba(255, 255, 255, .08); overflow: hidden; }
 .storage-bar > div { height: 100%; width: 34%; background: linear-gradient(90deg, var(--brass), #E4C87F); }
 
+
+/* ---- Resizers & Collapsible Panels ---- */
+.resizer {
+  width: 4px;
+  background: transparent;
+  cursor: col-resize;
+  position: relative;
+  z-index: 10;
+  flex: none;
+  transition: background .15s ease;
+}
+.resizer:hover, .resizer.dragging {
+  background: var(--brass);
+}
+.sidebar.collapsed {
+  display: none !important;
+}
+.chat.collapsed {
+  display: none !important;
+}
+
+.titlebar-btn {
+  background: transparent;
+  border: none;
+  color: #AEB7C7;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  transition: background .12s ease, color .12s ease;
+}
+.titlebar-btn:hover {
+  background: rgba(255,255,255,.08);
+  color: #FFF;
+}
+
 /* ---- Main ---- */
 .main {
   flex: 1;
